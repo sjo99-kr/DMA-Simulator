@@ -52,7 +52,7 @@ class DMA_v1 // state , mode , transaction_size
 	private:
 	public:
 		DMA_330(uint8_t state, uint32_t burst_size, bool mode, uint8_t transaction_size) :
-			transaction_size(transaction_size), mode(mode), state(state){
+			transaction_size(transaction_size), mode(mode), burst_size(burst_size), state(state){
 			dma_buffer =   new uint8_t[burst_size];
 		}
 	
