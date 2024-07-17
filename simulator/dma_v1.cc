@@ -59,10 +59,16 @@ DMA_v1::DMA_v1(const std::string& dma_script){
 			}
 		}
 	}
-   	 std::cout << "num_of_ch: " << num_of_ch << ", "
-              << "addr_width: " << addr_width << ", "
-              << "max_burst_size: " << max_burst_size << ", "
-              << "BTT: " << static_cast<int>(BTT) << std::endl;
+
+	std::cout<<"------------------DMA Descriptors--------------------"<<std::endl;
+   	std::cout << "num_of_ch: " << num_of_ch << std::endl;
+        std::cout<< "addr_width: " << addr_width << std::endl;
+        std::cout<< "sg_or_not (false: 0, true: 1): " << sg_or_not << std::endl;
+        std::cout<< "max_burst_size: " << max_burst_size << std::endl;
+        std::cout<< "BTT: " << static_cast<int>(BTT) << std::endl;
+        std::cout<< "burst_or_not (false: 0, true: 1): " << burst_or_not <<std::endl;
+
+        
         for(uint32_t i =0; i<num_of_ch; ++i){
         	channels[i].reset();
         }
@@ -119,20 +125,22 @@ bool DMA_v1::solveDescriptors(const std::string& filename, uint8_t* src_addr, ui
 			}
 		}
 	}
-	std::cout << "transaction_size: " << transaction_size << ", "
-              << "transfer_count: " << transfer_count << ", "
-              << "burst_size: " << burst_size  << std::endl;
+
+	std::cout<<"------------------descriptor image-------------------"<<std::endl;
+	std::cout << "transaction_size: " << transaction_size << std::endl;
+        std::cout << "transfer_count: " << transfer_count << std::endl;
+        std::cout << "burst_size: " << burst_size  << std::endl;
+              
+        std::cout<<"----------------------------------------------------"<<std::endl;
 	// channel setting
 	channels[ch_idx].set_channels(src_addr, dst_addr, transaction_size, transfer_count, burst_or_not, burst_size, 32); // buf_size = 32 byte;
 	status = check_btt(channels[ch_idx].transfer_count);
+	
 	latency();
 
-	std::cout << "channel's transfer_count : " << channels[ch_idx].transfer_count << std::endl;
 	std::cout << "simple transfer startd in dma_v1 " << std::endl;
-	std::cout << "channel clock :: " << channels[ch_idx].getClock() << std::endl;
 	
 	uint32_t cycle = simpleMode(ch_idx, 1); // ready_signal set to be 1;
-	std::cout << "cyclesoigeboigbogesooibge : : " << cycle <<std::endl;
 	add_clock(cycle);
 	/// transfer ready /////
 	
@@ -148,7 +156,6 @@ uint32_t DMA_v1::simpleMode(uint32_t ch_idx, bool ready_signal){
 	
 	return clock;
 }
-
 
 
 
