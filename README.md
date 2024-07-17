@@ -1,4 +1,6 @@
 ## DMA Simulator (on-going)
+### FLOW
+  C++ Modeling -> RTL Design  
 ### Input file 
 1. DMA_PARAMS_DESCRIPTS
 2. TRANSFER_DESCRIPTS
