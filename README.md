@@ -1,5 +1,4 @@
 # Direct Memory Access 
-
 ## DMA Simulator 
 ### Input file 
 1. DMA_PARAMS_DESCRIPTS
