@@ -8,7 +8,7 @@ DMA_SYSTEM::DMA_SYSTEM(const std::string& dma_script , const std::string& descri
 	dma = new DMA_v1(dma_script);
 	dma->solveDescriptors(descriptors, src_addr, dst_addr);
 	
-	std::cout<< dma->getClock() << std::endl;
+	std::cout<<"Total Cycles :"  << dma->getClock() << std::endl;
 
 
 }
