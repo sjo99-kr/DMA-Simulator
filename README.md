@@ -1,6 +1,11 @@
-## Direct Memory Access 
+# Direct Memory Access 
 
-### DMA Simulator 
+## DMA Simulator 
+### Input file 
+1. DMA_PARAMS_DESCRIPTS
+2. TRANSFER_DESCRIPTS
+3. MEMORY TRACES ( 0 ~ 3 )
+
 
 
 ### Header File
