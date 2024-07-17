@@ -6,8 +6,11 @@
 2. TRANSFER_DESCRIPTS
 3. MEMORY TRACES ( 0 ~ 3 )
 
+### Output Results
+1. Total Clcok Cycles
+2. Num of Writes , Num of Reads
 
-
+## Configuartion
 ### Header File
 1. Module (Top Module)
 2. DMA_SYSTEM ( has DMA_v1 and DMA_CHANNEL )
