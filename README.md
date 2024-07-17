@@ -1,4 +1,4 @@
-## DMA Simulator 
+## DMA Simulator (on-going)
 ### Input file 
 1. DMA_PARAMS_DESCRIPTS
 2. TRANSFER_DESCRIPTS
