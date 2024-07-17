@@ -1,3 +1,5 @@
 transaction_size = 4
 transfer_count = 24
 burst_size = 16
+src_device = 0
+dst_device = 1
