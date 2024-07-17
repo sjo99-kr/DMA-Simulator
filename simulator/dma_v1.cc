@@ -137,23 +137,39 @@ bool DMA_v1::solveDescriptors(const std::string& filename, uint8_t* src_addr, ui
 	status = check_btt(channels[ch_idx].transfer_count);
 	
 	latency();
-
-	std::cout << "simple transfer startd in dma_v1 " << std::endl;
 	
-	uint32_t cycle = simpleMode(ch_idx, 1); // ready_signal set to be 1;
-	add_clock(cycle);
-	/// transfer ready /////
+	/// Cycle Stealing Mode /// 
+	if(!channels[ch_idx].burst_or_not){
+		std::cout << "simple transfer startd in dma_v1 " << std::endl;
+	
+		uint32_t cycle = simpleMode(ch_idx); // src_ready and dst_ready signal set for 1 ,1
+		add_clock(cycle);
+	}
+	/// Burst Mode ///
+	else {
+		std::cout << "Burst transfer started in dma_v1" << std::endl;
+		uint32_t cycle = burstMode(ch_idx);
+		add_clock(cycle);
+	}
 	
 	return status;
 	
 };
 
 
-uint32_t DMA_v1::simpleMode(uint32_t ch_idx, bool ready_signal){
+uint32_t DMA_v1::simpleMode(uint32_t ch_idx){
 	DMA_CHANNEL channel = channels[ch_idx];
 	if(channel.is_busy()) return false;
-	uint32_t clock = channel.SimpleTransfer(ready_signal);
+	uint32_t clock = channel.SimpleTransfer();
 	
+	return clock;
+}
+
+uint32_t DMA_v1::burstMode(uint32_t ch_idx){
+	DMA_CHANNEL channel = channels[ch_idx];
+	if(channel.is_busy()) return false;
+	uint32_t clock = channel.BurstTransfer();
+
 	return clock;
 }
 
