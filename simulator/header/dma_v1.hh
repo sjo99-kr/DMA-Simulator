@@ -39,10 +39,10 @@ class DMA_v1 : public Module // state , mode , transaction_size
 			// channel addr -> device id setting
 		
 		// channel active for Read
-		uint32_t simpleMode(uint32_t channel_id, bool ready_signal);
+		uint32_t simpleMode(uint32_t channel_id);
 
 		// channel active for Write
-		bool burstMode(uint32_t channel_id, bool ready_signal, bool error_signal);
+		uint32_t burstMode(uint32_t channel_id);
 		
 		//  DMA Enable or Disable
 		bool is_busy();
