@@ -4,7 +4,7 @@
 ### Input file 
 1. DMA_PARAMS_DESCRIPTS
 2. TRANSFER_DESCRIPTS
-3. MEMORY TRACES ( 0 ~ 3 )
+3. DEVICE MEMORY ( 0 ~ 3 )
 
 ### Output Results
 1. Total Clcok Cycles
