@@ -1,9 +1,9 @@
 ## DMA Simulator (on-going)
-### FLOW
-  C++ Modeling -> RTL Design  
+  C++ Modeling 
+  
 ### Input file 
-1. DMA_PARAMS_DESCRIPTS
-2. TRANSFER_DESCRIPTS
+1. DMA_PARAMS_DESCRIPTS (num of channels, addr_width, sg_or_not (scatter-gather mode), BTT (Bytes to Transfer), burst_or_not (Support Burst Mode or Not)
+2. TRANSFER_DESCRIPTS (transaction_size(Data_width), transfer_count(size of transfer (bytes)), burst_size(Burst_size for transfer), src_deice(select DEVICE MEMORY), dst_device(select DEVICE MEMORY) 
 3. DEVICE MEMORY ( 0 ~ 3 )
 
 ### Output Results
