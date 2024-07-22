@@ -18,5 +18,5 @@
 4. DMA_CHANNEL
 
 ### flow_chart for one-transaction
-![image](https://github.com/user-attachments/assets/4b6c37ed-5e63-480f-9113-ebaca1a9fab5)
+![image](https://github.com/user-attachments/assets/f24661cb-4757-4817-8903-2a5f0fdbcdbc)
 
