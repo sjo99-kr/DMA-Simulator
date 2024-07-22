@@ -16,3 +16,7 @@
 2. DMA_SYSTEM ( has DMA_v1 and DMA_CHANNEL )
 3. DMA_v1 ( has DMA_CHANNEL FOR num of CH)
 4. DMA_CHANNEL
+
+### flow_chart for one-transaction
+![image](https://github.com/user-attachments/assets/4b6c37ed-5e63-480f-9113-ebaca1a9fab5)
+
