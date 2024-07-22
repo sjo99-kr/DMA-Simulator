@@ -3,6 +3,8 @@ CFLAGS  = -std=c++11 -Wall
 SRCDIR  = ./
 BINDIR  = ./
 
+
+
 SRCS    = $(wildcard $(SRCDIR)/*.cc)
 OBJS    = $(SRCS:.cc=.o)
 EXE     = dma_simulator
