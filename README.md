@@ -9,6 +9,9 @@
 ### Output 
 1. Total Clcok Cycles
 2. Num of Writes , Num of Reads
+![image](https://github.com/user-attachments/assets/4515ce94-622e-48ee-ad9a-25f1ca753a29)
+
+
 
 ## Configuartion
 ### Header File
