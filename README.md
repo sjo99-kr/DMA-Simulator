@@ -1,5 +1,5 @@
 ## DMA Simulator (on-going)
-  C++ Modeling 
+### C++ Modeling 
 
 ![image](https://github.com/user-attachments/assets/ef98bb37-2060-4deb-b425-e5982e8794cc)
 
@@ -10,10 +10,12 @@
 2. TRANSFER_DESCRIPTS (transaction_size(Data_width), transfer_count(size of transfer (bytes)), burst_size(Burst_size for transfer), src_deice(select DEVICE MEMORY), dst_device(select DEVICE MEMORY) 
 3. DEVICE MEMORY ( 0 ~ 3 )
 
+
 ### Output
-**1.  Clcok simulation
-**2.  Total Clcok Cycles
+1.  Clcok simulation
+2.  Total Clcok Cycles
 ![image](https://github.com/user-attachments/assets/71a5a0e9-c7c2-4f49-8947-976c0dfbf8ed)
+
 
 
 
