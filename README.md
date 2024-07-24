@@ -1,5 +1,5 @@
-## DMA Simulator (on-going)
-### C++ Modeling 
+## DMA Simulator (C++ modeling)
+### Block-diagram
 
 ![image](https://github.com/user-attachments/assets/ef98bb37-2060-4deb-b425-e5982e8794cc)
 
