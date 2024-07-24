@@ -1,0 +1,6 @@
+num_of_ch = 8
+addr_width = 32
+sg_or_not = false
+max_burst_size = 16
+BTT = 26
+burst_or_not = false
