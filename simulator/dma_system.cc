@@ -11,7 +11,7 @@ DMA_SYSTEM::DMA_SYSTEM(const std::string& dma_script , const std::string& descri
 	
 	dma->solveDescriptors(descriptors);
 	
-	std::cout<<"Total Cycles :"  << dma->getClock() << std::endl;
+
 
 
 }
