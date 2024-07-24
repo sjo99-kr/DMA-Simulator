@@ -19,15 +19,23 @@ class DMA_v1 : public Module // state , mode , transaction_size
 		uint32_t BTT;
 		DMA_CHANNEL channels[8];	
 		
-		uint32_t clock;
-
+		uint8_t* mem0;
+		uint8_t* mem1;
+		uint8_t* mem2;
+		uint8_t* mem3;
+		
+		
 	public:
-		DMA_v1(const std::string& dma_script);	
+		DMA_v1(const std::string& dma_script, const std::string& mem0_trace, const std::string& mem1_trace, 
+		const std::string& mem2_trace, const std::string& mem3_trace);	
 
 		// function setting
 		void tick();
 		void reset();
 		void initChannels();
+		
+		uint8_t* set_memory(const std::string& mem_trace);
+		uint32_t getClock(uint32_t channel_id);
 
 		void check(bool status);
 		//
@@ -35,14 +43,14 @@ class DMA_v1 : public Module // state , mode , transaction_size
 		uint32_t select_channel();
 		
 		// Read Descripotr informations and allocate channels.
-		bool solveDescriptors(const std::string& filename, uint8_t* src_addr, uint8_t* dst_addr);
+		bool solveDescriptors(const std::string& filename);
 			// channel addr -> device id setting
 		
 		// channel active for Read
-		uint32_t simpleMode(uint32_t channel_id);
+		void simpleMode(uint32_t channel_id);
 
 		// channel active for Write
-		uint32_t burstMode(uint32_t channel_id);
+		void burstMode(uint32_t channel_id);
 		
 		//  DMA Enable or Disable
 		bool is_busy();
