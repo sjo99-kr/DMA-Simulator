@@ -6,10 +6,12 @@
 2. TRANSFER_DESCRIPTS (transaction_size(Data_width), transfer_count(size of transfer (bytes)), burst_size(Burst_size for transfer), src_deice(select DEVICE MEMORY), dst_device(select DEVICE MEMORY) 
 3. DEVICE MEMORY ( 0 ~ 3 )
 
-### Output 
-1. Total Clcok Cycles
-2. Num of Writes , Num of Reads
-![image](https://github.com/user-attachments/assets/4515ce94-622e-48ee-ad9a-25f1ca753a29)
+### Output
+1.  Clcok simulation
+2.  Total Clcok Cycles
+![image](https://github.com/user-attachments/assets/71a5a0e9-c7c2-4f49-8947-976c0dfbf8ed)
+
+![image](https://github.com/user-attachments/assets/af1df04a-67a0-483b-9dc2-18c51625452f)
 
 
 
