@@ -9,13 +9,16 @@
 #include <iostream>
 
 
-bool DMA_v1::is_busy(){
-	if(state != 0x00 || state != 0x03) return false;
-	else return true;
+void check_status(bool status){
+	if(!status) {
+		std::cerr << "Error Occured "<<std::endl;
+	}
 }
 
+
+
 void DMA_v1::reset(){
-	state = 0x00; // 00 or 11 is IDLE state
+	state = 0; // 00 or 11 is IDLE state
 	num_of_ch = 0;
 	addr_width = 0;
 	sg_or_not = false;
@@ -60,10 +63,103 @@ uint8_t* DMA_v1::set_memory(const std::string& mem_trace){
 	return b;
 }
 
+bool DMA_v1::Action(uint32_t clk, bool src_ready, bool dst_ready, bool access){
+	if(state == false){
+		std::cout<< "[ DMA_Modules : clock @ \033[31m" << clk << "\033[0m ]" <<
+		"\tNOP, \033[35m DMA_Module_state = IDLE " << std::endl;
+		return true;
+	}
 
-DMA_v1::DMA_v1(const std::string& dma_script, const std::string& mem0_trace, const std::string& mem1_trace, 
+	
+	/// DMA_Module Action is VALID When Descripts is Valid
+	else if(state == true){
+		bool status = true;
+
+		// IDLE process in Channel
+		if(channels[reg_channelId].state == 0){
+			std::cout<< "[ DMA_Modules : \033[31m clock @ " << clk << "\033[0m ]" <<
+			"\tEND DMA PROCESS,\033[35m DMA_Module::Channel_state = IDLE\033[0m "  << std::endl;
+			state = false;
+			
+			return true;
+		}
+		// Send process in Channel
+		else if(channels[reg_channelId].state==1){
+			if(channels[reg_channelId].transfer_count !=0){
+				std::cout<< "[ DMA_Modules : \033[31m clock @ " << clk << "\033[0m ]" <<
+			"\tSEND DMA PROCESS,\033[32m DMA_Module::Channel_state = SEND_DATA\033[0m "  << std::endl;
+				status = channels[reg_channelId].dataTransferWrite(clk);
+				check_status(status);
+				
+				if(channels[reg_channelId].transfer_count == 0){
+				
+					channels[reg_channelId].state = 0; // go to check ready signal	
+				}
+				
+				else channels[reg_channelId].state= 3; // go to recevie process
+				return true;
+			}
+			
+		}
+		// Receive process in Channel
+		else if(channels[reg_channelId].state == 2){
+			if(channels[reg_channelId].transfer_count !=0){
+				std::cout<< "[ DMA_Modules : \033[31m clock @ " << clk << "\033[0m ]" <<
+			"\tRECEIVE DMA PROCESS, \033[36m DMA_Module::Channel_state = RECEIVE_DATA\033[0m "  << std::endl;
+				// Read datas from Src to Channel Buffer
+				status = channels[reg_channelId].dataTransferRead(clk);
+				check_status(status);
+				
+				channels[reg_channelId].state = 4; // go to check ready signal	
+				return true;
+			}
+
+			
+		}
+		// Receive process Ready Check in Channel
+		else if(channels[reg_channelId].state == 3){
+			if(channels[reg_channelId].transfer_count != 0){
+				std::cout<< "[ DMA_Modules : \033[31m clock @ " << clk << "\033[0m ]" <<
+			"\tWAIT READY SIGNAL PROCESS,\033[36m DMA_Module::Channel_state = WAIT_READY_SRC\033[0m "  << std::endl;
+				status = channels[reg_channelId].src_check(src_ready);
+				status = channels[reg_channelId].bus_check(access);
+				status = channels[reg_channelId].state = 2;
+				while(!status) ;
+				
+				return true;
+			}
+			else {
+				channels[reg_channelId].state = 0;
+				return true;
+			}
+		}
+		// Send process Ready Check in Channel
+		else if(channels[reg_channelId].state == 4){
+			if(channels[reg_channelId].transfer_count != 0){
+				std::cout<< "[ DMA_Modules : \033[31m clock @ " << clk << "\033[0m ]" <<
+			"\tWAIT READY SIGNAL PROCESS,\033[36m DMA_Module::Channel_state = WAIT_READY_DST \033[0m"  << std::endl;
+				status = channels[reg_channelId].dst_check(dst_ready);
+				status = channels[reg_channelId].bus_check(access);
+				channels[reg_channelId].state = 1;
+				return true;
+			}
+			return true;
+		}
+		
+		else return false;
+	
+	
+	}
+
+
+}
+
+/// DMA MODULE INITIALIZATION
+DMA_v1::DMA_v1(const std::string& dma_script, const std::string& descriptors, const std::string& mem0_trace, const std::string& mem1_trace, 
 const std::string& mem2_trace, const std::string& mem3_trace){
 	
+	
+	/// Memory device Setting
 	std::cout<< "memory0 data " << std::endl;
 	mem0 = set_memory(mem0_trace);
 	std::cout<< "memory1 data " << std::endl;	
@@ -112,6 +208,7 @@ const std::string& mem2_trace, const std::string& mem3_trace){
 		}
 	}
 
+	/// DMA Module Settings ..
 	std::cout<<"------------------DMA Descriptors--------------------"<<std::endl;
    	std::cout << "num_of_ch: " << num_of_ch << std::endl;
         std::cout<< "addr_width: " << addr_width << std::endl;
@@ -120,9 +217,17 @@ const std::string& mem2_trace, const std::string& mem3_trace){
         std::cout<< "BTT: " << static_cast<int>(BTT) << std::endl;
         std::cout<< "burst_or_not (false: 0, true: 1): " << burst_or_not <<std::endl;
         
+        /// reset for channels in DMA Moduel
         for(uint32_t i =0; i<num_of_ch; ++i){
         	channels[i].reset();
         }
+        
+        
+        solveDescriptors(descriptors);
+ 
+        /// State Change IN DMA Modules
+        state  = true; //Busy state
+
  
 };
 
@@ -137,13 +242,18 @@ uint32_t DMA_v1::select_channel(){
 	}
 };
 
-bool DMA_v1::solveDescriptors(const std::string& filename){
-	bool status;
-	if(is_busy()) return false;
 
-	uint8_t ch_idx = select_channel();
-	channels[ch_idx].reset();
+// Channel Setting process in DMA Module
+bool DMA_v1::solveDescriptors(const std::string& filename){
+
 	
+	// Channel Selection Process in DMA Modules
+	uint8_t ch_idx = select_channel();
+	reg_channelId = ch_idx;
+	channels[reg_channelId].reset();
+	
+	
+	// Channel Setting Process in DMA
 	std::ifstream infile(filename); 
 	if(!infile) {
 		std::cout << "Descripts Error !! "<< std::endl;
@@ -218,43 +328,15 @@ bool DMA_v1::solveDescriptors(const std::string& filename){
               
         std::cout<<"----------------------------------------------------"<<std::endl;
 	// channel setting
-	channels[ch_idx].set_channels(src_addr, dst_addr, transaction_size, transfer_count, burst_or_not, burst_size, 32); // buf_size = 32 byte;
-	status = check_btt(channels[ch_idx].transfer_count);
-
-	start_clock(channels[ch_idx]); // setting for start clock
-	reset_clock(channels[ch_idx]); // setting for reset clock
-		
-	/// Cycle Stealing Mode /// 
-	if(!channels[ch_idx].burst_or_not){
-		std::cout << "simple transfer startd in dma_v1 " << std::endl;
-	
-		simpleMode(ch_idx); // src_ready and dst_ready signal set for 1 ,1
-	}
-	/// Burst Mode ///
-	else {
-		std::cout << "Burst transfer started in dma_v1" << std::endl;
-		burstMode(ch_idx);
-	}
-	
-	
-	return status;
-	
+	channels[reg_channelId].set_channels(src_addr, dst_addr, transaction_size, transfer_count, burst_or_not, burst_size, 32); // buf_size = 32 byte;
+	check_btt(channels[reg_channelId].transfer_count);
+	channels[reg_channelId].state = 3;
+	channels[reg_channelId].bus_access = 0;
+	channels[reg_channelId].src_ready = 0;
+	channels[reg_channelId].dst_ready = 0;
 };
 
 
-void DMA_v1::simpleMode(uint32_t ch_idx){
-	DMA_CHANNEL channel = channels[ch_idx];
-	if(channel.is_busy()) return ;
-	channel.SimpleTransfer();
-	
-}
-
-void DMA_v1::burstMode(uint32_t ch_idx){
-	DMA_CHANNEL channel = channels[ch_idx];
-	if(channel.is_busy()) return ;
-	channel.BurstTransfer();
-
-}
 
 
 
