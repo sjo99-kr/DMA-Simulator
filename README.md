@@ -16,11 +16,11 @@
 2.  Total Clcok Cycles
 
 ### Output Log (Burst)
-![image](https://github.com/user-attachments/assets/5a78a7f3-62c0-44c0-8ba0-c9755e50b184)
+![image](https://github.com/user-attachments/assets/9716a486-c95c-474f-bc14-59b17352e41a)
 
 
 ### Output Log (Non-Burst)
-![image](https://github.com/user-attachments/assets/6845c24c-b6e1-4941-a4f9-e689ec810c02)
+![image](https://github.com/user-attachments/assets/eae29f50-3a47-4656-83d5-83734b4e681b)
 
 
 ## Configuartion
