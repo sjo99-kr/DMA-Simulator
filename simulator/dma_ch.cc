@@ -1,5 +1,5 @@
-#include "utils.cc"
-
+#include "utils.hh"
+#include "dma_ch.hh"
 
 // Initialization for Channel-Buffer
 void DMA_CHANNEL::get_buffer(uint32_t size){
@@ -26,22 +26,31 @@ void DMA_CHANNEL::set_channels(uint8_t* src_addr, uint8_t* dst_addr, uint32_t tr
 			this->transfer_count = transfer_count;
 			this->burst_size = burst_size;
 			this->buf_size = buf_size;	
-			this->clock = 0;
 			get_buffer(buf_size);
 };
 			
 // ready check for src_addr
-bool DMA_CHANNEL::src_check(uint8_t* src_addr){
-	// we just calculation clock cycles for hand-shake
-	return (src_addr != NULL) ? true : false;
+bool DMA_CHANNEL::src_check(bool ready){
+	if(ready) src_ready = 1;
+	else src_ready = 0;
+	return src_ready;
 };
 
 // ready check for dst_addr
-bool DMA_CHANNEL::dst_check(uint8_t* dst_addr){
+bool DMA_CHANNEL::dst_check(bool ready){
 
 	// we just calculation clock cycles for hand-shake
-	return (dst_addr != NULL ) ? true : false;
+	if(ready) dst_ready = 1;
+	else dst_ready = 0;
+	return dst_ready;
 };
+
+bool DMA_CHANNEL::bus_check(bool access){
+
+	if(access) bus_access = 1;
+	else bus_access = 0;
+	return access;
+}
 
 
 // Idle or busy state
@@ -61,15 +70,7 @@ bool DMA_CHANNEL::check_flag(){
 }
 
 // read-data process for one-word in one-cylce
-bool DMA_CHANNEL::dataTransferRead() {
-	// channel is busy or not
-	if(is_busy()) return false;
-	
-	state = 1; // setting state to busy before transfer-process
-	
-	wait_ready_clock(*this); // setting for ready_clock
-	src_check(src_addr); //check for ready-signal from source
-	get_ready_clock(*this);
+bool DMA_CHANNEL::dataTransferRead(uint32_t clock) {
 	
 	uint8_t data_buf[buf_size];	
 	
@@ -86,7 +87,7 @@ bool DMA_CHANNEL::dataTransferRead() {
 				}
 				rd_pt = rd_pt + transaction_size;
 			//tick(); // tick for transfer data for one-word
-			src2dma_clock(*this, data_buf, transaction_size);
+			src2dma_clock(clock, data_buf, transaction_size);
 		}
 		// case for data-width > transfer_count
 		else {
@@ -97,7 +98,7 @@ bool DMA_CHANNEL::dataTransferRead() {
 			}
 			rd_pt = 0;
 			//tick(); // tick for transfer data for one-word
-			src2dma_clock(*this, data_buf, transfer_count);
+			src2dma_clock(clock, data_buf, transfer_count);
 		}
 		buf_reg = 0; //buf_reg initialization 
 	}
@@ -115,7 +116,7 @@ bool DMA_CHANNEL::dataTransferRead() {
 				
 				rd_pt = rd_pt + transaction_size + rd_pt;
 				for(uint32_t c = 0; c <burst_size; ++c){
-					src2dma_burst_clock(*this, data_buf, transaction_size, transaction_size * c);
+					src2dma_burst_clock(clock, data_buf, transaction_size, transaction_size * c);
 				}
 			}
 		
@@ -136,10 +137,10 @@ bool DMA_CHANNEL::dataTransferRead() {
 
 				for(uint32_t i= 0; i< (transfer_count / transaction_size) + 1; ++i){
 					if(i == transfer_count / transaction_size){
-						src2dma_burst_clock(*this, data_buf, transfer_count, transaction_size * i);
+						src2dma_burst_clock(clock, data_buf, transfer_count, transaction_size * i);
 					}
 					else {
-						src2dma_burst_clock(*this, data_buf, transaction_size, transaction_size * i);
+						src2dma_burst_clock(clock, data_buf, transaction_size, transaction_size * i);
 						}
 				}
 				
@@ -154,19 +155,11 @@ bool DMA_CHANNEL::dataTransferRead() {
 		
 	}
 	
-	state = 0; // Change channel state to IDLE.
 	return true;
 
 };
 
-bool DMA_CHANNEL::dataTransferWrite(){
-	if(is_busy()) return false;
-	state = 1; //busy setting
-	
-	wait_ready_clock(*this);
-	dst_check(dst_addr); //check for ready-signal from destination
-	get_ready_clock(*this);
-	
+bool DMA_CHANNEL::dataTransferWrite(uint32_t clock){
 	
 	uint8_t data_buf[buf_size];	
 	
@@ -181,7 +174,7 @@ bool DMA_CHANNEL::dataTransferWrite(){
 			}
 			wr_pt = wr_pt + transaction_size;
 			//tick();
-			dma2dst_clock(*this, data_buf, transaction_size);
+			dma2dst_clock(clock, data_buf, transaction_size);
 			
 		}
 		else {
@@ -191,7 +184,7 @@ bool DMA_CHANNEL::dataTransferWrite(){
 				buf_reg = buf_reg + 1;
 			}
 			
-			dma2dst_clock(*this, data_buf, transfer_count);
+			dma2dst_clock(clock, data_buf, transfer_count);
 			
 			transfer_count  = 0;
 			wr_pt = 0;
@@ -215,7 +208,7 @@ bool DMA_CHANNEL::dataTransferWrite(){
 
 
 				for(uint32_t c = 0; c <burst_size; ++c){
-					dma2dst_burst_clock(*this, data_buf, transaction_size, transaction_size * c);
+					dma2dst_burst_clock(clock, data_buf, transaction_size, transaction_size * c);
 				}
 			}
 			
@@ -230,10 +223,10 @@ bool DMA_CHANNEL::dataTransferWrite(){
 				
 				for(uint32_t i= 0; i< (transfer_count / transaction_size) + 1; ++i){
 					if(i == transfer_count / transaction_size){
-						dma2dst_burst_clock(*this, data_buf, transfer_count, transaction_size * i);
+						dma2dst_burst_clock(clock, data_buf, transfer_count, transaction_size * i);
 					}
 					else {
-						dma2dst_burst_clock(*this, data_buf, transaction_size, transaction_size * i);
+						dma2dst_burst_clock(clock, data_buf, transaction_size, transaction_size * i);
 						}
 				}
 				transfer_count = 0;
@@ -247,42 +240,9 @@ bool DMA_CHANNEL::dataTransferWrite(){
 			return 0;
 		}
 	}
-	state = 0;
-	set_flag();
+
+
 	return true;
 };
 
-void DMA_CHANNEL::SimpleTransfer(){
-	int rd = 0;
-	int wr = 0;
-	while(transfer_count != 0){
-		get_Access_clock(*this);
-		dataTransferRead();
-		return_Access_clock(*this); // read-process counts;
-		
-		
-		get_Access_clock(*this); // get access for bus in write-data process
-		dataTransferWrite();
-		return_Access_clock(*this); // write-process counts;
-	}
 
-	std::cout << "Total Clock cycles : " << this->clock << std::endl;
-	return ;
-}
-
-void DMA_CHANNEL::BurstTransfer(){
-	int rd = 0;
-	int wr = 0;
-	while(transfer_count != 0){
-		get_Access_clock(*this); // get access for bus in read-data process
-		dataTransferRead();
-		return_Access_clock(*this);
-		
-		get_Access_clock(*this); // get access for bus in write-data process
-		dataTransferWrite();
-		return_Access_clock(*this);
-	
-	}	
-	std::cout << "Total Clock cycles : " << this->clock << std::endl;
-	return ;
-}
