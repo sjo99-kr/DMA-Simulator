@@ -14,9 +14,13 @@
 ### Output
 1.  Clcok simulation
 2.  Total Clcok Cycles
-![image](https://github.com/user-attachments/assets/71a5a0e9-c7c2-4f49-8947-976c0dfbf8ed)
+
+### Output Log (Burst)
+![image](https://github.com/user-attachments/assets/5a78a7f3-62c0-44c0-8ba0-c9755e50b184)
 
 
+### Output Log (Non-Burst)
+![image](https://github.com/user-attachments/assets/6845c24c-b6e1-4941-a4f9-e689ec810c02)
 
 
 ## Configuartion
