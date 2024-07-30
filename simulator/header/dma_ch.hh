@@ -1,13 +1,12 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
-#include "Module.hh"
 
-class DMA_CHANNEL : public Module {
+
+class DMA_CHANNEL {
 	public:	
 		// constructor
-		 DMA_CHANNEL(){}
-		 
+		DMA_CHANNEL() {};
 		// Public params 
 		uint32_t transfer_count;  // transfer_count = total transfer size , e.g. 64Bytes , 128Bytes.. 1024Bytes.. 
 		uint32_t transaction_size; // data_width based on bus data-width
@@ -27,28 +26,32 @@ class DMA_CHANNEL : public Module {
 		 
 		
 		// ready check
-		bool src_check(uint8_t* src_addr);
-		bool dst_check(uint8_t* dst_addr);
+		bool src_check(bool ready);
+		bool dst_check(bool ready);
+		bool bus_check(bool access);
+		
 		// data transfer for one word.. (8-bytes, 16-bytes, 32-bytes... )
-		bool dataTransferRead();
-		bool dataTransferWrite();
+		bool dataTransferRead(uint32_t clk);
+		bool dataTransferWrite(uint32_t clk);
 		
-		// Simple Transfer for Cycle-Stealing Mode (Non-burst Mode)
-		void SimpleTransfer();
-		void BurstTransfer();
-		
-		
+
 		uint8_t* src_addr; // Source base addr
 		uint8_t* dst_addr; // Destination base addr
 
 		bool burst_or_not; // Burst mode or Cycle-Stealing Mode  (true / false)
 		uint32_t channel_id; // set channel ID
+		uint32_t state; // Channel State (IDLE :0  BUSY ; 1)
+
+
+		bool src_ready;
+		bool dst_ready;
+		bool bus_access;
 
 	private:
 
 		// private params
 
-		bool state; // Channel State (IDLE :0  BUSY ; 1)
+
 		uint32_t buf_reg; // pointer for channel_buffer
 		uint32_t burst_size; // burst_size , num of word for each transfer
 		
